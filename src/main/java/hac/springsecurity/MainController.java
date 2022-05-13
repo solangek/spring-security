@@ -1,5 +1,7 @@
 package hac.springsecurity;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.unbescape.html.HtmlEscape;
 
 import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
 import java.util.Locale;
 
 @Controller
@@ -24,15 +27,26 @@ public class MainController {
         return "user/index";
     }
 
-    /** Administration zone index. */
+    /** Administration zone index.
+     * Note that we can access current logged user just by adding the Principal
+     * parameter
+     */
     @RequestMapping("/admin")
-    public String adminIndex() {
+    public String adminIndex(Principal principal) {
+        System.out.println("Current logged user details: " + principal.getName());
         return "admin/index";
     }
 
     /** Shared zone index. */
     @RequestMapping("/shared")
     public String sharedIndex() {
+        // print current logged user details
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        System.out.println("Current logged user details: "
+                + ((UserDetails) principal).getUsername()
+                + " (" + ((UserDetails) principal).getAuthorities() + ")");
+
+
         return "shared/index";
     }
 
@@ -67,16 +81,16 @@ public class MainController {
     /***** UNCOMMENT THE NEXT 2 METHODS TO USE A CUSTOM LOGIN PAGE *****/
     /***** ALSO uncomment the corresponding code in the ApplicationConfig class *****/
     /** Login form with error. */
-    @RequestMapping("/login-error")
-    public String loginError(Model model) {
-        model.addAttribute("loginError", true);
-        return "login";
-    }
-    /** Login form. */
-    @RequestMapping("/login")
-    public String login() {
-        return "login";
-    }
+//    @RequestMapping("/login-error")
+//    public String loginError(Model model) {
+//        model.addAttribute("loginError", true);
+//        return "login";
+//    }
+//    /** Login form. */
+//    @RequestMapping("/login")
+//    public String login() {
+//        return "login";
+//    }
     /************************** END OF CUSTOM LOGIN **********************/
 
 }
