@@ -1,24 +1,32 @@
 package hac.springsecurity;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.unbescape.html.HtmlEscape;
-
-import javax.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import java.security.Principal;
-import java.util.Locale;
 
 @Controller
 public class MainController {
+
+    private static Logger logger = LoggerFactory.getLogger(MainController.class);
 
     /** Home page. */
     @RequestMapping("/")
     public String index() {
         return "index";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
     }
 
     /** User zone index. */
@@ -40,7 +48,7 @@ public class MainController {
     /** Shared zone index. */
     @RequestMapping("/shared")
     public String sharedIndex() {
-        // print current logged user details
+        // print current logged user details - withouth using the Principal parameter
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         System.out.println("Current logged user details: "
                 + ((UserDetails) principal).getUsername()
@@ -53,44 +61,32 @@ public class MainController {
     /** Simulation of an exception. */
     @RequestMapping("/simulateError")
     public void simulateError() {
-        throw new RuntimeException("This is a simulated error message");
+        throw new RuntimeException("This is a simulated exception thrown by a controller");
     }
 
-    /** Error page. */
-    @RequestMapping("/error.html")
-    public String error(HttpServletRequest request, Model model) {
-        model.addAttribute("errorCode", "Error " + request.getAttribute("javax.servlet.error.status_code"));
-        Throwable throwable = (Throwable) request.getAttribute("javax.servlet.error.exception");
-        StringBuilder errorMessage = new StringBuilder();
-        errorMessage.append("<ul>");
-        while (throwable != null) {
-            errorMessage.append("<li>").append(HtmlEscape.escapeHtml5(throwable.getMessage())).append("</li>");
-            throwable = throwable.getCause();
-        }
-        errorMessage.append("</ul>");
-        model.addAttribute("errorMessage", errorMessage.toString());
+    /** Error page that displays all exceptions. */
+    @RequestMapping("/errorpage")
+    public String error(Exception ex, Model model) {
+        model.addAttribute("errorMessage", ex.getMessage());
         return "error";
     }
 
-    /** Error page. */
+    /** simple Error page. */
     @RequestMapping("/403")
     public String forbidden() {
         return "403";
     }
 
-    /***** UNCOMMENT THE NEXT 2 METHODS TO USE A CUSTOM LOGIN PAGE *****/
-    /***** ALSO uncomment the corresponding code in the ApplicationConfig class *****/
-    /** Login form with error. */
-//    @RequestMapping("/login-error")
-//    public String loginError(Model model) {
-//        model.addAttribute("loginError", true);
-//        return "login";
-//    }
-//    /** Login form. */
-//    @RequestMapping("/login")
-//    public String login() {
-//        return "login";
-//    }
-    /************************** END OF CUSTOM LOGIN **********************/
+    @ExceptionHandler({Exception.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public String handleException(Exception ex, Model model) {
+
+        //logger.error("Exception during execution of SpringSecurity application", ex);
+        String errorMessage = (ex != null ? ex.getMessage() : "Unknown error");
+
+        model.addAttribute("errorMessage", errorMessage);
+        return "error";
+    }
+
 
 }

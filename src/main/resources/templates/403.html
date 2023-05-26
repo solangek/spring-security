@@ -3,10 +3,10 @@
     <head>
         <title>4XX Error page</title>
         <meta charset="utf-8" />
-        <link rel="stylesheet" href="css/main.css" th:href="@{/css/main.css}" />
+        <link rel="stylesheet" th:href="@{/css/main.css}" />
     </head>
     <body>
-        <h1>FORBIDDEN</h1>
-        <a href="/" th:href="@{/}">Back to Home Page</a>
+        <h1>Access denied</h1>
+        <a th:href="@{/}">Back to Home Page</a>
     </body>
 </html>

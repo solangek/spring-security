@@ -2,52 +2,71 @@ package hac.springsecurity;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
-@EnableWebSecurity
-public class ApplicationConfig extends WebSecurityConfigurerAdapter {
+public class ApplicationConfig  {
 
-    @Override
-    protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-        PasswordEncoder encoder =
-                PasswordEncoderFactories.createDelegatingPasswordEncoder();
-
-        auth
-                .inMemoryAuthentication()
-                .withUser("jim").password(encoder.encode("demo")).roles("ADMIN")
-                .and()
-                .withUser("bob").password(encoder.encode("demo")).roles("USER")
-                .and()
-                .withUser("ted").password(encoder.encode("demo")).roles("USER","ADMIN");
+    @Bean
+    public UserDetailsService userDetailsService(PasswordEncoder bCryptPasswordEncoder) {
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        manager.createUser(User.withUsername("user")
+                .password(bCryptPasswordEncoder.encode("password"))
+                .roles("USER")
+                .build());
+        manager.createUser(User.withUsername("admin")
+                .password(bCryptPasswordEncoder.encode("password"))
+                .roles("ADMIN")
+                .build());
+        manager.createUser(User.withUsername("useradmin")
+                .password(bCryptPasswordEncoder.encode("password"))
+                .roles("USER", "ADMIN")
+                .build());
+        return manager;
     }
 
-    @Override
-    protected void configure(final HttpSecurity http) throws Exception {
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .formLogin()
-                //.loginPage("/login") // <=============== uncomment this for a custom login page (see also the controller)
-                //.loginProcessingUrl("/login")
-                .defaultSuccessUrl("/shared", true)
-                //.failureUrl("/login-error") // <===============  uncomment this for a custom login page (see also the controller)
-                .and()
-                .logout()
-                .logoutSuccessUrl("/")
-                .and()
-                .authorizeRequests()
-                .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/user/**").hasRole("USER")
-                .antMatchers("/shared/**").hasAnyRole("USER", "ADMIN")
-                // custom error page for exceptions
-                .and()
-                .exceptionHandling()
-                .accessDeniedPage("/403.html");
+                .cors(withDefaults())
+                .csrf(withDefaults())
+
+                .authorizeHttpRequests((requests) -> requests
+                                .requestMatchers("/static/**", "/", "/403", "/errorpage", "/simulateError").permitAll()
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/user/**").hasRole("USER")
+                                .requestMatchers("/shared/**").hasAnyRole("USER", "ADMIN")
+                )
+                .formLogin((form) -> form
+                        .loginPage("/login")
+//                                .loginProcessingUrl("/login")
+                               .defaultSuccessUrl("/", true)
+//                                .failureUrl("/")
+                        .permitAll()
+                )
+                .logout((logout) -> logout.permitAll())
+                .exceptionHandling(
+                        (exceptionHandling) -> exceptionHandling
+                                .accessDeniedPage("/403")
+                )
+
+        ;
+
+        return http.build();
+
     }
 
 }
