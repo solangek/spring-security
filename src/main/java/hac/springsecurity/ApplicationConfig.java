@@ -3,6 +3,7 @@ package hac.springsecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -45,7 +46,7 @@ public class ApplicationConfig  {
                 .csrf(withDefaults())
 
                 .authorizeHttpRequests((requests) -> requests
-                                .requestMatchers("/static/**", "/", "/403", "/errorpage", "/simulateError").permitAll()
+                                .requestMatchers("/css/**", "/", "/403", "/errorpage", "/simulateError").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/user/**").hasRole("USER")
                                 .requestMatchers("/shared/**").hasAnyRole("USER", "ADMIN")
@@ -67,6 +68,13 @@ public class ApplicationConfig  {
 
         return http.build();
 
+    }
+
+
+// instead of defining open path in the method above you can do it here:
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers("/favicon.ico");
     }
 
 }

@@ -41,7 +41,7 @@ public class MainController {
      */
     @RequestMapping("/admin")
     public String adminIndex(Principal principal) {
-        System.out.println("Current logged user details: " + principal.getName());
+        System.out.println("Current logged user details: " + " (" + principal + ")" );
         return "admin/index";
     }
 
