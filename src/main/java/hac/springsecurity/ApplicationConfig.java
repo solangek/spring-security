@@ -47,18 +47,20 @@ public class ApplicationConfig  {
 
                 .authorizeHttpRequests((requests) -> requests
                                 .requestMatchers("/css/**", "/", "/403", "/errorpage", "/simulateError").permitAll()
-                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/admin/**").hasRole("ADMIN") // the ** represents any subpath
                                 .requestMatchers("/user/**").hasRole("USER")
                                 .requestMatchers("/shared/**").hasAnyRole("USER", "ADMIN")
                 )
                 .formLogin((form) -> form
-                        .loginPage("/login")
-//                                .loginProcessingUrl("/login")
-                               .defaultSuccessUrl("/", true)
+                                .loginPage("/login")
+//                                .loginProcessingUrl("/login")   // if you want to implement the login controller instead of using the default one
+                               .defaultSuccessUrl("/", true)   // if you want to redirect to a default controller after login (for example the controller may check ROLES and redirect accordingly)
 //                                .failureUrl("/")
                         .permitAll()
                 )
                 .logout((logout) -> logout.permitAll())
+
+                // comment out these lines if you want to use the default error page:
                 .exceptionHandling(
                         (exceptionHandling) -> exceptionHandling
                                 .accessDeniedPage("/403")

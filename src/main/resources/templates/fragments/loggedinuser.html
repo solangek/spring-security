@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Thymeleafexamples + Spring Security</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+
+<!-- This fragment is included in the main layout and provides a logged-in user interface -->
+<div th:fragment="loggedinuser">
+    <div sec:authorize="isAuthenticated()">
+        <p>Welcome, <span sec:authentication="name"></span>!</p>
+        <p>Your roles: <span sec:authentication="principal.authorities"></span></p>
+        <!-- this fragment is used to provide a logout form -->
+        <div th:fragment="logout">
+            <form th:action="@{/logout}" method="post" style="display:inline">
+                <input type="submit" value="Logout"/>
+            </form>
+        </div>
+    </div>
+    <div sec:authorize="!isAuthenticated()">
+        <p>Welcome guest!</p>
+        <p>Please <a th:href="@{/login}">login</a> to access more features.</p>
+    </div>
+</div>
+
+
+
+</body>
+</html>
