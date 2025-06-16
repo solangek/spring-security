@@ -43,6 +43,11 @@ public class ApplicationConfig  {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(withDefaults())
+                // if you have a REST api, you may want to uncomment the following lines
+                // otherwise you will get a 403 error when trying to access the api
+//                .csrf(csrf -> csrf
+//                        .ignoringRequestMatchers("/api/**") // assuming you have an API at /api/**
+//                )
                 .csrf(withDefaults())
 
                 .authorizeHttpRequests((requests) -> requests
