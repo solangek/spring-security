@@ -8,10 +8,10 @@
     <body>
 
 
-        <div th:replace="fragments/loggedinuser.html :: loggedinuser"></div>
+        <div th:replace="~{fragments/loggedinuser.html :: loggedinuser}"></div>
 
         <h1>Thymeleaf examples - Spring Security</h1>
-        <p>This is a demo of Thymeleaf and Spring-Security integration. If you develop a website, the UI should not look like this demo!</p>
+        <p>This is a demo of Thymeleaf and Spring-Security integration with ROLES.</p>
         <p>Documentation is  availabale at <a href="https://docs.spring.io/spring-security/reference/index.html">https://docs.spring.io/spring-security/reference/index.html</a>
             and at <a href="https://docs.spring.io/spring-security/site/docs/current/api/">https://docs.spring.io/spring-security/site/docs/current/api/</a>.</p>
         <p>We created 2 ROLES and 3 users:</p>
@@ -20,9 +20,9 @@
         <p>role (USER) and (ADMIN) : useradmin / password</p>
         <h2>We defined various pages and permissions:</h2>
         <p>This is a public page, but you can navigate to protected pages to trigger authentication.</p>
-        <div sec:authorize="hasRole('USER')">Text visible to user.</div>
-        <div sec:authorize="hasRole('ADMIN')">Text visible to admin.</div>
-        <div sec:authorize="isAuthenticated()">Text visible only to authenticated users.</div>
+        <div class="authz" sec:authorize="hasRole('USER')">Text visible to user.</div>
+        <div class="authz" sec:authorize="hasRole('ADMIN')">Text visible to admin.</div>
+        <div class="authz" sec:authorize="isAuthenticated()">Text visible only to authenticated users.</div>
 
         <ul>
             <li>Go to <a th:href="@{/admin}">administration zone</a> (only admins)</li>

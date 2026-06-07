@@ -12,7 +12,7 @@
         <p>Welcome, <span sec:authentication="name"></span>!</p>
         <p>Your roles: <span sec:authentication="principal.authorities"></span></p>
         <!-- this fragment is used to provide a logout form -->
-        <div th:fragment="logout">
+        <div th:fragment="logout" class="logout">
             <form th:action="@{/logout}" method="post" style="display:inline">
                 <input type="submit" value="Logout"/>
             </form>
